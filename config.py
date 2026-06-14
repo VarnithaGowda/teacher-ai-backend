@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     # App
     APP_NAME: str = "Teacher AI Platform"
     DEBUG: bool = True
-    FRONTEND_URL: str = "http://localhost:5173"
+    FRONTEND_URL: str = "https://teacher-ai-assist.netlify.app"
 
     # JWT
     SECRET_KEY: str = "change-this-secret-key"

@@ -26,31 +26,14 @@ async def generate_rubric(
 ) -> dict:
     """
     Generate a grading rubric using Gemini.
-    
-    Args:
-        user_id: Teacher's user ID
-        assignment_title: e.g., "Python OOP Project"
-        assignment_type: essay/coding/presentation/quiz/project
-        subject: e.g., "Computer Science"
-        grade_level: e.g., "Grade 11"
-        total_marks: Total marks for the assignment
-        criteria: Optional custom criteria list
-        description: Optional assignment description
-    
-    Returns:
-        Dict with rubric data
     """
-    # Calculate grade boundaries
-    total_marks_90_100 = f"{int(total_marks * 0.9)}-{total_marks}"
-    total_marks_75_89 = f"{int(total_marks * 0.75)}-{int(total_marks * 0.89)}"
-    total_marks_60_74 = f"{int(total_marks * 0.60)}-{int(total_marks * 0.74)}"
-    total_marks_60 = int(total_marks * 0.60)
 
     criteria_str = (
-        ", ".join(criteria) if criteria else "Use standard criteria for this assignment type"
+        ", ".join(criteria)
+        if criteria
+        else "Use standard criteria for this assignment type"
     )
 
-    # Format prompt
     formatted_prompt = rubric_prompt.format(
         assignment_title=assignment_title,
         assignment_type=assignment_type,
@@ -59,19 +42,39 @@ async def generate_rubric(
         total_marks=total_marks,
         criteria=criteria_str,
         description=description or "Standard assignment",
-        total_marks_90_100=total_marks_90_100,
-        total_marks_75_89=total_marks_75_89,
-        total_marks_60_74=total_marks_60_74,
-        total_marks_60=total_marks_60,
+        total_marks_90_100=f"{int(total_marks * 0.9)}-{total_marks}",
+        total_marks_75_89=f"{int(total_marks * 0.75)}-{int(total_marks * 0.89)}",
+        total_marks_60_74=f"{int(total_marks * 0.60)}-{int(total_marks * 0.74)}",
+        total_marks_60=int(total_marks * 0.60),
     )
 
-    llm = get_llm(temperature=0.5)  # Lower temp for more consistent rubrics
+    llm = get_llm(temperature=0.5)
     logger.info(f"Generating rubric for: {assignment_title}")
+
     response = await llm.ainvoke(formatted_prompt)
     rubric_text = response.content
 
+    # Remove unwanted sections if Gemini generates them
+    sections_to_remove = [
+        "## Grading Scale",
+        "## Submission Requirements",
+        "## Academic Integrity Note",
+        "Grading Scale",
+        "Submission Requirements",
+        "Academic Integrity Note",
+    ]
+
+    for section in sections_to_remove:
+        if section in rubric_text:
+            rubric_text = rubric_text.split(section)[0].strip()
+
+    # Remove excessive separator lines
+    rubric_text = rubric_text.replace("---", "")
+    rubric_text = rubric_text.replace("***", "")
+
     # Save to MongoDB
     db = get_database()
+
     doc = {
         "user_id": user_id,
         "assignment_title": assignment_title,
@@ -84,6 +87,7 @@ async def generate_rubric(
         "rubric": rubric_text,
         "created_at": datetime.utcnow(),
     }
+
     result = await db.rubrics.insert_one(doc)
 
     return {
@@ -97,27 +101,43 @@ async def generate_rubric(
 
 
 async def get_rubrics(user_id: str, limit: int = 20) -> list:
-    """Retrieve all rubrics for a teacher."""
+    """
+    Retrieve all rubrics for a teacher.
+    """
     db = get_database()
+
     cursor = db.rubrics.find(
         {"user_id": user_id},
         sort=[("created_at", -1)],
         limit=limit,
     )
+
     rubrics = []
+
     async for doc in cursor:
         doc["id"] = str(doc.pop("_id"))
         rubrics.append(doc)
+
     return rubrics
 
 
-async def get_rubric_by_id(rubric_id: str, user_id: str) -> Optional[dict]:
-    """Get a specific rubric by ID."""
+async def get_rubric_by_id(
+    rubric_id: str,
+    user_id: str,
+) -> Optional[dict]:
+    """
+    Get a specific rubric by ID.
+    """
     db = get_database()
-    doc = await db.rubrics.find_one({
-        "_id": ObjectId(rubric_id),
-        "user_id": user_id,
-    })
+
+    doc = await db.rubrics.find_one(
+        {
+            "_id": ObjectId(rubric_id),
+            "user_id": user_id,
+        }
+    )
+
     if doc:
         doc["id"] = str(doc.pop("_id"))
+
     return doc

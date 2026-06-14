@@ -1,80 +1,52 @@
-"""
-prompts/rubric_prompt.py - Prompt templates for rubric generation
-"""
-
-from langchain.prompts import PromptTemplate
-
-# ─── Rubric Generation Prompt ─────────────────────────────────────
 RUBRIC_TEMPLATE = """
-You are an expert educator and assessment specialist. Create a detailed, fair grading rubric.
+You are an expert educator and assessment specialist.
 
-**Assignment Title:** {assignment_title}
-**Assignment Type:** {assignment_type}
-**Subject:** {subject}
-**Grade Level:** {grade_level}
-**Total Marks:** {total_marks}
-**Custom Criteria:** {criteria}
-**Description:** {description}
+Create a professional grading rubric for the following assignment.
 
-Generate a comprehensive rubric in the following format using Markdown:
+Assignment Title: {assignment_title}
+Assignment Type: {assignment_type}
+Subject: {subject}
+Grade Level: {grade_level}
+Total Marks: {total_marks}
+Custom Criteria: {criteria}
+Description: {description}
+
+IMPORTANT INSTRUCTIONS:
+
+1. Generate ONLY the rubric.
+2. Do NOT include:
+   - Grading Scale
+   - Submission Requirements
+   - Academic Integrity Note
+   - Notes to students
+   - Explanatory paragraphs
+   - Separator lines
+3. Create 4-6 relevant assessment criteria.
+4. Distribute marks appropriately so total equals {total_marks}.
+5. Keep each performance descriptor concise (1-2 sentences).
+6. Return clean Markdown only.
+
+Output format:
 
 # Grading Rubric: {assignment_title}
 
 ## Assignment Details
-- **Type:** {assignment_type}
-- **Subject:** {subject}
-- **Grade Level:** {grade_level}
-- **Total Marks:** {total_marks}
 
-## Rubric Table
-
-Create a detailed rubric table with these performance levels:
-- **Excellent (90-100%)** - Exceeds expectations
-- **Proficient (75-89%)** - Meets expectations  
-- **Developing (60-74%)** - Approaching expectations
-- **Beginning (Below 60%)** - Below expectations
-
-For each criterion, specify:
-1. The criterion name and weight (marks)
-2. Clear descriptors for each performance level
-3. Specific observable behaviors or outcomes
+- Type: {assignment_type}
+- Subject: {subject}
+- Grade Level: {grade_level}
+- Total Marks: {total_marks}
 
 ## Criteria Breakdown
 
-(Create 4-6 relevant criteria based on the assignment type. 
-For coding: correctness, code quality, documentation, efficiency, creativity
-For essays: content, structure, grammar, analysis, citations
-For presentations: content, delivery, visuals, engagement, time management
-For projects: planning, execution, results, documentation, presentation)
+(List criteria and marks)
 
-## Scoring Guide
+## Rubric Table
 
-| Criterion | Marks | Excellent | Proficient | Developing | Beginning |
-|-----------|-------|-----------|------------|------------|-----------|
-(Fill in the table with specific descriptors)
+| Criterion | Marks | Excellent (90-100%) | Proficient (75-89%) | Developing (60-74%) | Beginning (<60%) |
+|-----------|-------|---------------------|---------------------|---------------------|------------------|
 
-## Total: {total_marks} marks
+Fill the table completely.
 
-## Grading Scale
-- A (90-100%): {total_marks_90_100} marks
-- B (75-89%): {total_marks_75_89} marks  
-- C (60-74%): {total_marks_60_74} marks
-- D (Below 60%): Below {total_marks_60} marks
-
-## Submission Requirements
-(List what students must submit)
-
-## Academic Integrity Note
-All work must be original. Plagiarism will result in zero marks.
-
-Make the rubric clear, objective, and easy for students to understand what is expected.
+Total Marks: {total_marks}
 """
-
-rubric_prompt = PromptTemplate(
-    input_variables=[
-        "assignment_title", "assignment_type", "subject", "grade_level",
-        "total_marks", "criteria", "description",
-        "total_marks_90_100", "total_marks_75_89", "total_marks_60_74", "total_marks_60"
-    ],
-    template=RUBRIC_TEMPLATE,
-)
