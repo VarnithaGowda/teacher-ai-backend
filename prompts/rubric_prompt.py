@@ -1,3 +1,9 @@
+"""
+prompts/rubric_prompt.py - Prompt templates for rubric generation
+"""
+
+from langchain.prompts import PromptTemplate
+
 RUBRIC_TEMPLATE = """
 You are an expert educator and assessment specialist.
 
@@ -50,3 +56,20 @@ Fill the table completely.
 
 Total Marks: {total_marks}
 """
+
+rubric_prompt = PromptTemplate(
+    input_variables=[
+        "assignment_title",
+        "assignment_type",
+        "subject",
+        "grade_level",
+        "total_marks",
+        "criteria",
+        "description",
+        "total_marks_90_100",
+        "total_marks_75_89",
+        "total_marks_60_74",
+        "total_marks_60",
+    ],
+    template=RUBRIC_TEMPLATE,
+)
