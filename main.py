@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 import os
 
 from database.connection import connect_to_mongo, close_mongo_connection
-from api import auth, lesson_plan, rubric, evaluation, chatbot, rag, analytics, workflow
+from api import auth, lesson_plan, rubric, evaluation, chatbot, rag, analytics, workflow, question_paper
 from config import settings
 
 
@@ -58,6 +58,7 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 app.include_router(auth.router,        prefix="/api/auth",       tags=["Authentication"])
 app.include_router(lesson_plan.router, prefix="/api/lesson",     tags=["Lesson Plans"])
 app.include_router(rubric.router,      prefix="/api/rubric",     tags=["Rubrics"])
+app.include_router(question_paper.router, prefix="/api/question-paper", tags=["Question Papers"])
 app.include_router(evaluation.router,  prefix="/api/evaluation", tags=["Student Evaluation"])
 app.include_router(chatbot.router,     prefix="/api/chat",       tags=["AI Chatbot"])
 app.include_router(rag.router,         prefix="/api/rag",        tags=["RAG / Documents"])

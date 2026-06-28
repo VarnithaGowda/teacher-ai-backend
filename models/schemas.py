@@ -175,3 +175,34 @@ class AnalyticsSummary(BaseModel):
     total_documents: int
     average_score: Optional[float] = None
     recent_activity: List[Dict[str, Any]]
+
+# ─── Question Paper Schemas ───────────────────────────────────────
+
+class QuestionPaperRequest(BaseModel):
+    subject: str = Field(..., example="Computer Science")
+    grade_level: str = Field(..., example="Grade 10")
+    exam_type: str = Field(..., example="Mid Semester")
+    difficulty: DifficultyLevel = DifficultyLevel.intermediate
+    total_marks: int = Field(..., ge=20, le=100, example=50)
+    duration: int = Field(..., ge=30, le=180, example=90)
+    topics: List[str] = Field(
+        ...,
+        example=[
+            "Arrays",
+            "Linked Lists",
+            "Stacks",
+            "Queues"
+        ]
+    )
+
+
+class QuestionPaperResponse(BaseModel):
+    id: str
+    subject: str
+    grade_level: str
+    exam_type: str
+    difficulty: str
+    total_marks: int
+    duration: int
+    question_paper: str
+    created_at: datetime
