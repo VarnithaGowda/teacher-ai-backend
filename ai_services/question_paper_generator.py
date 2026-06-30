@@ -5,11 +5,12 @@ AI Question Paper Generation Service
 
 from typing import List
 from datetime import datetime
-from bson import ObjectId
+from bson.objectid import ObjectId
 import logging
 
 from database.connection import get_database
 from prompts.question_paper_prompt import question_paper_prompt
+from prompts.ppt_prompt import ppt_prompt
 from ai_services.gemini_client import get_llm
 
 logger = logging.getLogger(__name__)
@@ -31,21 +32,42 @@ async def generate_question_paper(
 
     topics_text = "\n".join(f"- {topic}" for topic in topics)
 
-    formatted_prompt = question_paper_prompt.format(
-        subject=subject,
-        grade_level=grade_level,
-        exam_type=exam_type,
-        difficulty=difficulty,
-        total_marks=total_marks,
-        duration=duration,
-        topics=topics_text,
-    )
+    # Decide which prompt to use
+    if exam_type.lower() == "presentation":
+
+        formatted_prompt = ppt_prompt.format(
+            subject=subject,
+            grade_level=grade_level,
+            presentation_style="Professional",
+            audience="UG Students",
+            difficulty=difficulty,
+            slides=max(total_marks, 8),
+            topics=topics_text,
+            instructions="",
+        )
+
+    else:
+
+        formatted_prompt = question_paper_prompt.format(
+            subject=subject,
+            grade_level=grade_level,
+            exam_type=exam_type,
+            difficulty=difficulty,
+            total_marks=total_marks,
+            duration=duration,
+            topics=topics_text,
+        )
 
     llm = get_llm(temperature=0.6)
 
     logger.info(
-        f"Generating Question Paper for {subject} ({grade_level})"
+        f"Generating content for {subject} ({grade_level})"
     )
+
+    print("=" * 50)
+    print("Exam Type:", exam_type)
+    print("=" * 50)
+    print(formatted_prompt[:1000])
 
     response = await llm.ainvoke(formatted_prompt)
 
