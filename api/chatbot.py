@@ -10,28 +10,36 @@ from ai_services.chatbot import chat_with_teacher_bot, get_chat_history, get_cha
 router = APIRouter()
 
 
-@router.post("/message")
-async def send_message(
-    request: ChatRequest,
-    current_user: dict = Depends(get_current_user),
-):
-    """
-    Send a message to the AI teaching assistant.
+# @router.post("/message")
+# async def send_message(
+#     request: ChatRequest,
+#     current_user: dict = Depends(get_current_user),
+# ):
+#     """
+#     Send a message to the AI teaching assistant.
     
-    The chatbot uses RAG to answer questions based on uploaded documents.
-    Maintains conversation history within a session.
-    """
-    try:
-        result = await chat_with_teacher_bot(
-            user_id=current_user["id"],
-            message=request.message,
-            session_id=request.session_id,
-            use_rag=request.use_rag,
-        )
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
+#     The chatbot uses RAG to answer questions based on uploaded documents.
+#     Maintains conversation history within a session.
+#     """
+#     try:
+#         result = await chat_with_teacher_bot(
+#             user_id=current_user["id"],
+#             message=request.message,
+#             session_id=request.session_id,
+#             use_rag=request.use_rag,
+#         )
+#         return result
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
 
+@router.post("/message")
+async def send_message():
+    print("INSIDE CHAT ROUTE")
+    return {
+        "session_id": "test",
+        "message": "Backend is working",
+        "sources": []
+    }
 
 @router.get("/history")
 async def get_history(

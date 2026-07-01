@@ -53,11 +53,12 @@ async def chat_with_teacher_bot(
         try:
             logger.info("STEP 1: Getting RAG context")
 
-            rag_result = await get_rag_context(
-                user_id,
-                message,
-                n_results=4
-            )
+            # rag_result = await get_rag_context(
+            #     user_id,
+            #     message,
+            #     n_results=4
+            # )
+            use_rag=False
 
             if rag_result:
                 context = rag_result
